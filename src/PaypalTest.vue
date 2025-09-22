@@ -35,6 +35,14 @@ async function listProducts(token:string) {
   return data;
 }
 
+async function savePaypalInfo(email:string, subscriptionId:string) {
+  const res = await axios.post("http://localhost:3000/api/subscriptions/confirm",{
+    email: email,
+    subscriptionId:subscriptionId
+  })
+  console.info("savePaypalInfo", res)
+}
+
 async function listPlans(token:string, productId:string) {
   const { data } = await axios.get(`${BASE}/v1/billing/plans`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -78,13 +86,15 @@ async function renderPaypalButton() {
 
       createSubscription(data, actions) {
         return actions.subscription.create({
-          plan_id: planId.value
+          plan_id: planId.value,
+          custom_id: 'customEamil@test.com'
         });
       },
 
       onApprove(data, actions) {
         approvedId.value = data.subscriptionID;
         console.log("[onApprove]", data);
+        savePaypalInfo("test111@test.com",data.subscriptionID)
         alert("구독 승인됨!\nSubscriptionID: " + data.subscriptionID);
       },
 
@@ -135,6 +145,8 @@ const errorMsg = ref("");
     <div v-if="errorMsg" class="err">
       ❌ 에러: {{ errorMsg }}
     </div>
+
+    <button @click="savePaypalInfo('test@test.com','I-1234123')">testPost</button>
   </div>
 </template>
 
